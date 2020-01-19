@@ -32,7 +32,30 @@ We then set it as executable and add the bin dir to the `PATH` in the `.bashrc` 
     echo -e '\nexport PATH=~/bin:$PATH\n' >> ~/.bashrc
     source ~/.bashrc
 
+## Get The TWRP Source
+
+Since we are only compiling TWRP and not a full ROM we will get a minimal set of files to save time and space.
+
+The TWRP source is in OmniROM, however, the `repo` command will download/clone from multiple sources as android source is split over multiple projects.
+
+To simplify this when you are only building TWRP, there is a [minimal manifest project][4] to restrict sources to only downloaded the required projects.
+ 
+Choose the branch that matches the version of android your phone has. In this case we are using `twrp-9.0`.
+
+    mkdir -p ~/android/twrp
+    cd ~/android/twrp
+    repo init -u git://github.com/minimal-manifest-twrp/platform_manifest_twrp_omni.git --depth=1 -b twrp-9.0
+    repo --time sync --no-clone-bundle -j8
+
+You can change the number of threads (simultaneous downloads) by changing `j8` (twice number of CPU cores is a good start).
+
+- `--time` will output the time taken at the end.
+- `--depth=1` means only get the last commit and not the entire history (which should reduce the amount downloaded).
+- `--no-clone-bundle` will reduce the download further by disabling git bundles that aren't affected by the `-c` option.
+
+This can take a long time. Even with a decent connection it took 1h40m. The `.repo` dir was about 5.2 GB in size and the full twrp dir (including the 5.2 GB .repo) was about 22 GB.
 
   [1]: https://twrp.me/faq/howtocompiletwrp.html
   [2]: https://forum.xda-developers.com/showthread.php?t=1943625
   [3]: https://github.com/LineageOS/lineage_wiki/blob/master/_includes/templates/device_build.md
+  [4]: https://github.com/minimal-manifest-twrp/platform_manifest_twrp_omni
